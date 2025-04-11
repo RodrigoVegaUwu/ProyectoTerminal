@@ -21,8 +21,7 @@ class Receta:
 
     @staticmethod
     def obtener_por_paciente(paciente_id):
-        recetas = current_app.db.collection('recetas').where(filter=('paciente_id', '==', paciente_id)).stream()
-
+        recetas = current_app.db.collection('recetas').where('paciente_id', '==', paciente_id).stream()
         return [{'id': receta.id, **receta.to_dict()} for receta in recetas]
 
     @staticmethod
