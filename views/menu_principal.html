@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Menú Principal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            opacity: 0;
+            animation: fadeIn 1s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            margin: 20px auto;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-style: italic;
+            font-weight: bold;
+        }
+
+        .search-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            font-size: 16px;
+        }
+
+        .register-btn {
+            background: red;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .table-container {
+            width: 100%;
+            max-width: 900px;
+            margin: auto;
+            text-align: left;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: auto;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            white-space: normal;
+            word-wrap: break-word;
+            border-bottom: 1px solid #ccc;
+        }
+
+        th {
+            font-weight: bold;
+            color: black;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .actions a {
+            font-weight: bold;
+            text-decoration: none;
+            color: black;
+        }
+
+        .actions a:hover {
+            text-decoration: underline;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .pagination button, .pagination span {
+            background: black;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 5px;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        .pagination span { background: #ccc; color: black; }
+
+    </style>
+</head>
+<body>
+    {% include 'header_menu_principal.html' %}
+
+    <div class="container">
+        <h1>Bienvenido a <span style="font-style: italic;">MediUam!</span></h1>
+
+        <h2 style="font-style: italic;">Historiales Médicos</h2>
+
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Nombre o ID del paciente" onkeyup="filterTable()">
+            <a href="{{ url_for('paciente.registrar_paciente') }}" class="register-btn">Registrar Paciente</a>
+        </div>
+
+        {% if pacientes %}
+        <div class="table-container">
+            <table id="patient-table">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Acciones</th>
+                </tr>
+                {% for paciente in pacientes %}
+                <tr class="patient-row">
+                    <td>{{ paciente.id }}</td>
+                    <td>{{ paciente.nombre }} {{ paciente.apellido_paterno }} {{ paciente.apellido_materno }}</td>
+                    <td class="actions">
+                        <a href="{{ url_for('paciente.actualizar_paciente', id=paciente.id) }}">Actualizar Datos</a>
+                        <a href="{{ url_for('cita.generar_cita', paciente_id=paciente.id) }}">Generar Cita</a>
+                        <a href="{{ url_for('receta.historial_recetas', paciente_id=paciente.id) }}">Checar Recetas Médicas</a>
+                        <a href="{{ url_for('nota.historial_notas', paciente_id=paciente.id) }}">Checar Notas Médicas</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <script>
+        function filterTable() {
+            let input = document.querySelector('.search-input').value.toLowerCase();
+            let rows = document.querySelectorAll(".patient-row");
+
+            rows.forEach(row => {
+                let name = row.cells[1].innerText.toLowerCase();
+                let id = row.cells[0].innerText.toLowerCase();
+                row.style.display = (name.includes(input) || id.includes(input)) ? "" : "none";
+            });
+        }
+
+        let currentPage = 1;
+        const rowsPerPage = 5;
+        function showPage(page) {
+            let rows = document.querySelectorAll(".patient-row");
+            let totalPages = Math.ceil(rows.length / rowsPerPage);
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+
+            rows.forEach((row, index) => {
+                row.style.display = (index >= (page - 1) * rowsPerPage && index < page * rowsPerPage) ? "" : "none";
+            });
+
+            updatePagination(totalPages, page);
+        }
+
+        function updatePagination(totalPages, currentPage) {
+            let paginationContainer = document.getElementById("pagination");
+            paginationContainer.innerHTML = "";
+
+            if (totalPages <= 1) return;
+
+            let prevButton = `<button onclick="showPage(${currentPage - 1})" ${currentPage === 1 ? "disabled" : ""}>← Atrás</button>`;
+            let nextButton = `<button onclick="showPage(${currentPage + 1})" ${currentPage === totalPages ? "disabled" : ""}>Siguiente →</button>`;
+
+            let pageNumbers = "";
+            if (totalPages <= 6) {
+                for (let i = 1; i <= totalPages; i++) {
+                    pageNumbers += `<button onclick="showPage(${i})" ${i === currentPage ? 'style="background:#ccc;color:black;"' : ""}>${i}</button>`;
+                }
+            } else {
+                if (currentPage > 3) pageNumbers += `<button onclick="showPage(1)">1</button> ... `;
+
+                let start = Math.max(1, currentPage - 1);
+                let end = Math.min(totalPages, currentPage + 1);
+                for (let i = start; i <= end; i++) {
+                    pageNumbers += `<button onclick="showPage(${i})" ${i === currentPage ? 'style="background:#ccc;color:black;"' : ""}>${i}</button>`;
+                }
+
+                if (currentPage < totalPages - 2) pageNumbers += ` ... <button onclick="showPage(${totalPages})">${totalPages}</button>`;
+            }
+
+            paginationContainer.innerHTML = prevButton + pageNumbers + nextButton;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => showPage(currentPage));
+    </script>
+</body>
+</html>

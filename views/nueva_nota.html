@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Agregar Nota Médica y/o Imágenes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            opacity: 0;
+            animation: fadeIn 1s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin: 20px auto;
+            text-align: left;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .content-box {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+            margin: 20px auto;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+        }
+
+        input, textarea {
+            width: 95%; 
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-top: 5px;
+        }
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .file-upload {
+            width: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 1px solid black;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .file-upload:hover {
+            background: #f0f0f0;
+        }
+
+        #imagen {
+            display: none;
+        }
+
+        .btn-submit {
+            background: black;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 200px;
+        }
+
+        .btn-submit:hover {
+            background: #333;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            font-weight: bold;
+            color: black;
+            margin-bottom: 20px;
+        }
+
+        .back-link i {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    {% include 'header_menu_principal.html' %}
+
+    <div class="container">
+        <a href="{{ url_for('nota.historial_notas', paciente_id=paciente.id) }}" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Atrás
+        </a>
+
+        <h1>Agregar Nota Médica y/o Imágenes</h1>
+
+        <div class="content-box">
+            <form method="POST" enctype="multipart/form-data">
+                <label for="titulo">Título de la Nota:</label>
+                <input type="text" id="titulo" name="titulo" required>
+
+                <label for="nombre">Nombre del Paciente:</label>
+                <input type="text" id="nombre" name="nombre_o_id" value="{{ paciente.nombre }} {{ paciente.apellido_paterno }} {{ paciente.apellido_materno }}" readonly>
+
+                <label for="cedula">Cédula Profesional:</label>
+                <input type="text" id="cedula" name="cedula_profesional" value="{{ cedula_profesional }}" readonly>
+
+                <label for="nota">Nota:</label>
+                <textarea id="nota" name="nota" required></textarea>
+
+                <label for="imagen">Subir Imagen:</label>
+                <label for="imagen" class="file-upload">
+                    <i class="fa-solid fa-upload"></i> Subir imagen
+                </label>
+                <input type="file" id="imagen" name="imagen" onchange="mostrarImagen()">
+
+                <div id="imagen-preview" style="margin-top: 10px;"></div>
+
+                <button type="submit" class="btn-submit">Agregar</button>
+
+                <script>
+                function mostrarImagen() {
+                    let input = document.getElementById('imagen');
+                    let preview = document.getElementById('imagen-preview');
+                    preview.innerHTML = '';
+
+                    if (input.files && input.files[0]) {
+                        let reader = new FileReader();
+                        reader.onload = function (e) {
+                            let img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.maxWidth = "200px";
+                            img.style.borderRadius = "8px";
+                            img.style.marginTop = "10px";
+                            preview.appendChild(img);
+                        };
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+                </script>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

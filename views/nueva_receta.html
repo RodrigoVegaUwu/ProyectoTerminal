@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Receta Médica</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            opacity: 0;
+            animation: fadeIn 1s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            margin: 20px auto;
+            text-align: left;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        .content-box {
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+            margin: 20px auto;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .input-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 45px; 
+            margin-bottom: 15px;
+        }
+
+        .input-container div {
+            flex: 1;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 8px; 
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: white;
+            outline: none;
+            transition: border 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            box-shadow: inset 0px 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        input:focus, textarea:focus {
+            border-color: #007bff;
+            box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
+        }
+
+        textarea {
+            height: 140px;
+            resize: none;
+        }
+
+        .btn-submit {
+            background: black;
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 40px; 
+            width: 100%;
+        }
+
+        .btn-submit:hover {
+            background: #333;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            font-weight: bold;
+            color: black;
+            margin-bottom: 20px;
+        }
+
+        .back-link i {
+            margin-right: 8px;
+        }
+    </style>
+    <script>
+        function printAfterSubmit(event) {
+            event.preventDefault(); 
+            window.print(); 
+            document.getElementById("receta-form").submit();
+        }
+    </script>
+</head>
+<body>
+    {% include 'header_menu_principal.html' %}
+
+    <div class="container">
+        <a href="{{ url_for('receta.historial_recetas', paciente_id=paciente.id) }}" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Atrás
+        </a>
+
+        <h1>Receta Médica</h1>
+
+        <div class="content-box">
+            <form id="receta-form" method="post" onsubmit="printAfterSubmit(event)">
+                <div class="input-container">
+                    <div>
+                        <label for="nombre_completo">Nombre Completo</label>
+                        <input type="text" id="nombre_completo" name="nombre_completo" value="{{ paciente.nombre }} {{ paciente.apellido_paterno }} {{ paciente.apellido_materno }}" readonly>
+                    </div>
+                    <div>
+                        <label for="edad">Edad</label>
+                        <input type="number" id="edad" name="edad" required>
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <div>
+                        <label for="peso">Peso</label>
+                        <input type="number" id="peso" name="peso" required>
+                    </div>
+                    <div>
+                        <label for="altura">Altura</label>
+                        <input type="number" id="altura" name="altura" required>
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <div>
+                        <label for="fecha">Fecha</label>
+                        <input type="date" id="fecha" name="fecha" required>
+                    </div>
+                    <div>
+                        <label for="correo">Correo</label>
+                        <input type="email" id="correo" name="correo" required>
+                    </div>
+                    <div>
+                        <label for="telefono">Teléfono:</label>
+                        <input type="text" id="telefono" name="telefono" required>
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <div>
+                        <label for="diagnostico">Diagnóstico</label>
+                        <input type="text" id="diagnostico" name="diagnostico" required>
+                    </div>
+                    <div>
+                        <label for="cedula_profesional">Cédula Profesional</label>
+                        <input type="text" id="cedula_profesional" name="cedula_profesional" required>
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <div>
+                        <label for="clinica">Clínica</label>
+                        <input type="text" id="clinica" name="clinica" required>
+                    </div>
+                </div>
+
+                <div class="input-container">
+                    <div style="width: 100%;">
+                        <label for="tratamiento">Tratamiento</label>
+                        <textarea id="tratamiento" name="tratamiento" required></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" id="print-btn" class="btn-submit">Guardar y Imprimir</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
