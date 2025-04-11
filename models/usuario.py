@@ -23,14 +23,14 @@ class Usuario:
 
     @staticmethod
     def actualizar_contrasena(cedula_profesional, nueva_contrasena):
-        usuario_ref = current_app.db.collection('usuarios').where(filter=('cedula_profesional', '==', cedula_profesional)).get()
+        usuario_ref = current_app.db.collection('usuarios').where('cedula_profesional', '==', cedula_profesional).get()
         if usuario_ref:
             usuario_id = usuario_ref[0].id
             current_app.db.collection('usuarios').document(usuario_id).update({'password': nueva_contrasena})
 
     @staticmethod
     def buscar_por_cedula(cedula_profesional):
-        usuario_ref = current_app.db.collection('usuarios').where(filter=('cedula_profesional', '==', cedula_profesional)).get()
+        usuario_ref = current_app.db.collection('usuarios').where('cedula_profesional', '==', cedula_profesional).get()
         if usuario_ref:
             return usuario_ref[0].to_dict() 
         return None
