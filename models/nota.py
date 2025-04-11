@@ -14,7 +14,7 @@ class Nota:
 
     @staticmethod
     def obtener_por_paciente(paciente_id):
-        notas = current_app.db.collection('notas').where(filter=('paciente_id', '==', paciente_id)).stream()
+        notas = current_app.db.collection('notas').where('paciente_id', '==', paciente_id).stream()
 
         return [{'id': nota.id, **nota.to_dict()} for nota in notas]
 
