@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestor de Citas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            opacity: 0;
+            animation: fadeIn 1s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .back-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            font-weight: bold;
+            color: black;
+        }
+
+        .back-link i {
+            margin-right: 8px;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            flex-grow: 1;
+            margin: 0;
+        }
+
+        .content {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .calendar-container {
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .form-container {
+            flex: 1;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .time-selector {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .time-selector input {
+            width: 48%;
+            text-align: center;
+        }
+
+        button {
+            background: black;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #333;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+</head>
+<body>
+    {% include 'header_menu_principal.html' %}
+    <div class="container">
+        <div class="header">
+            <a href="{{ url_for('main.menu_principal') }}" class="back-link">
+                <i class="fa-solid fa-arrow-left"></i> Atrás
+            </a>
+            <h1>Gestor de Citas</h1>
+        </div>
+
+        <div class="content">
+
+            <div class="form-container">
+                <form method="POST" action="{{ url_for('cita.generar_cita', paciente_id=paciente.id) }}">
+
+                    <label for="remitente">Correo del doctor (Remitente):</label>
+                    <input type="email" id="remitente" name="remitente" value="{{ usuario['email'] }}" readonly>
+                    
+                    <label for="nombre_doctor">Nombre del doctor:</label>
+                    <input type="text" id="nombre_doctor" name="nombre_doctor" value="{{ usuario['nombre'] }}" readonly>
+
+                    <label for="correo">Correo del paciente (Receptor):</label>
+                    <input type="email" id="correo" name="correo" value="{{ paciente['correo'] }}" readonly>
+                
+                    <label for="fecha">Fecha:</label>
+                    <input type="text" id="fecha" name="fecha" required>
+                
+                    <label for="hora">Hora:</label>
+                    <div class="time-selector">
+                        <input type="number" id="hora" name="hora" min="0" max="23" required>
+                        <span>:</span>
+                        <input type="number" id="minutos" name="minutos" min="0" max="59" required>
+                    </div>
+                
+                    <label for="razon">Razón:</label>
+                    <textarea id="razon" name="razon" rows="2"></textarea>
+                
+                    <button type="submit">Generar Cita</button>
+                </form>
+                
+                <script>
+                    flatpickr("#fecha", {
+                        enableTime: false,
+                        dateFormat: "d/m/Y",
+                        disableMobile: false,
+                        allowInput: false,
+                        inline: true  
+                    });
+                </script>
+                
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
