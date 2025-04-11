@@ -1,4 +1,5 @@
 import os
+import json
 from flask import Flask
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -15,33 +16,36 @@ def create_app():
 
     app.secret_key = os.getenv('SECRET_KEY', 'your_secret_key')
 
-    firebase_cred_path = "gestiondehistorialesmedicos-firebase-adminsdk-9emsw-813a2a847f.json"
-
-    firebase_cred_path = "gestiondehistorialesmedicos-firebase-adminsdk-9emsw-813a2a847f.json"
     if not firebase_admin._apps:
-        if os.path.exists(firebase_cred_path):
-            cred = credentials.Certificate(firebase_cred_path)
-            firebase_admin.initialize_app(cred)
-            app.db = firestore.client()
+        firebase_credentials_json = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+        if firebase_credentials_json:
+            try:
+                cred_dict = json.loads(firebase_credentials_json)
+                cred = credentials.Certificate(cred_dict)
+                firebase_admin.initialize_app(cred)
+                app.db = firestore.client()
+            except Exception as e:
+                raise ValueError(f"Error al cargar las credenciales de Firebase: {e}")
         else:
-            raise FileNotFoundError(f"No se encontró el archivo de credenciales de Firebase: {firebase_cred_path}")
+            raise ValueError("No se encontró la variable de entorno GOOGLE_APPLICATION_CREDENTIALS_JSON")
 
+    # Configuración del correo
     app.config.update({
         'MAIL_SERVER': 'smtp.gmail.com',
         'MAIL_PORT': 587,
         'MAIL_USE_TLS': True,
         'MAIL_USE_SSL': False,
-         'MAIL_USERNAME': os.getenv('MAIL_USERNAME'),
+        'MAIL_USERNAME': os.getenv('MAIL_USERNAME'),
         'MAIL_PASSWORD': os.getenv('MAIL_PASSWORD'),
         'MAIL_DEFAULT_SENDER': os.getenv('MAIL_USERNAME')
-        
     })
+
     print("MAIL_USERNAME:", os.getenv('MAIL_USERNAME'))
     print("MAIL_PASSWORD:", os.getenv('MAIL_PASSWORD'))
 
-
     mail.init_app(app)
 
+    # Importar Blueprints
     from controllers.auth_controller import auth_bp
     from controllers.paciente_controller import paciente_bp
     from controllers.main_controller import main_bp
@@ -49,6 +53,7 @@ def create_app():
     from controllers.nota_controller import nota_bp
     from controllers.citas_controller import cita_bp
 
+    # Registrar Blueprints
     app.register_blueprint(auth_bp)
     app.register_blueprint(paciente_bp)
     app.register_blueprint(main_bp)
@@ -56,13 +61,13 @@ def create_app():
     app.register_blueprint(nota_bp)
     app.register_blueprint(cita_bp)
 
+    # Carpeta de subida
     app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER', 'static/uploads')
 
     return app
 
-
 app = create_app()
 
 if __name__ == '__main__':
-    
     app.run(debug=True)
+
