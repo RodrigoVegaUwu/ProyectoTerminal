@@ -129,7 +129,10 @@
         }
 
         .citas-list li {
-            margin-bottom: 5px;
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -177,13 +180,13 @@
                     <button type="submit">Generar Cita</button>
                 </form>
 
-                <h3 class="citas-list">Citas agendadas</h3>
+                <h3 class="citas-list">Citas pendientes agendadas por el doctor</h3>
                 <ul class="citas-list">
                     {% for cita in citas %}
                         <li>
-                            <strong>Fecha:</strong> {{ cita.fecha }},
-                            <strong>Hora:</strong> {{ cita.hora }},
-                            <strong>Paciente:</strong> {{ cita.nombre_paciente }} ({{ cita.correo_paciente }})
+                            <strong>📅 Fecha:</strong> {{ cita.fecha }}<br>
+                            <strong>🕒 Hora:</strong> {{ cita.hora }}<br>
+                            <strong>👤 Paciente:</strong> {{ cita.nombre_paciente }} ({{ cita.correo_paciente }})
                         </li>
                     {% else %}
                         <li>No hay citas agendadas aún.</li>
@@ -203,7 +206,5 @@
             </div>
         </div>
     </div>
-
 </body>
 </html>
-
