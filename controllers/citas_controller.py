@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, session
 from models.paciente import Paciente
 from models.citas import Cita
 from models.usuario import Usuario
@@ -10,7 +10,7 @@ cita_bp = Blueprint('cita', __name__)
 def generar_cita(paciente_id):
     paciente = Paciente.obtener_por_id(paciente_id)
     cedula_profesional = session.get('cedula_profesional')
-    usuario = Usuario.buscar_por_cedula(cedula_profesional)  
+    usuario = Usuario.buscar_por_cedula(cedula_profesional)
 
     if request.method == 'POST':
         fecha = request.form['fecha']
@@ -23,8 +23,7 @@ def generar_cita(paciente_id):
 
         nueva_cita_dt = datetime.strptime(f"{fecha} {hora}:{minutos}", "%d/%m/%Y %H:%M")
 
-        citas_ref = current_app.db.collection('citas').where('correo_doctor', '==', correo_doctor)
-        citas_existentes = [doc.to_dict() for doc in citas_ref.stream()]
+        citas_existentes = Cita.obtener_citas_futuras_por_doctor(correo_doctor)
 
         for cita in citas_existentes:
             fecha_hora_cita = datetime.strptime(f"{cita['fecha']} {cita['hora']}", "%d/%m/%Y %H:%M")
@@ -38,19 +37,7 @@ def generar_cita(paciente_id):
 
         return redirect(url_for('main.menu_principal'))
 
-    citas_ref = current_app.db.collection('citas').where('paciente_id', '==', paciente_id)
-    citas_raw = citas_ref.stream()
-    citas = []
-
-    for doc in citas_raw:
-        cita_data = doc.to_dict()
-        paciente_data = Paciente.obtener_por_id(cita_data['paciente_id'])
-        if paciente_data:
-            nombre_completo = f"{paciente_data['nombre']} {paciente_data['apellido_paterno']} {paciente_data['apellido_materno']}"
-        else:
-            nombre_completo = "Desconocido"
-        cita_data['nombre_paciente'] = nombre_completo
-        citas.append(cita_data)
+    citas = Cita.obtener_citas_futuras_por_doctor(usuario['email'])
 
     return render_template('citas.html', paciente=paciente, usuario=usuario, citas=citas)
 
